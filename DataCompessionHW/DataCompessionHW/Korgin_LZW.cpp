@@ -1,7 +1,6 @@
 #include <iostream>
 #include <unordered_map>
 #include "KORGIN_LZW.h"
-
 std::unordered_map<std::string, int> encoding_map;
 std::unordered_map<int, std::string> decoding_map;
 

@@ -7,17 +7,25 @@
 #include "Huffman.h"
 #include "Korgin_LZW.h"
 #include "vag_arivmetic.h"
-#include "Shennon_Fano/Shennon-Fano.h"
+#include "Shennon-Fano.h"
+#include <sstream>
 
 using namespace std;
 //A function for creating a string containing random elements
-string data_geberation(int size) {
+string data_generation(int size) {
     const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    string Data;
+    //for (int i = 0; i < size; ++i) {
+    //    Data.push_back(characters[rand() % characters.size()]);
+   // }
+    static std::mt19937 gen(std::random_device{}());
+
+    std::string randomString;
+    randomString.reserve(size);
+
     for (int i = 0; i < size; ++i) {
-        Data.push_back(characters[rand() % characters.size()]);
+        randomString.push_back(characters[gen() % characters.size()]);
     }
-    return Data;
+    return randomString;
 }
 //A function for reading data from a file and writing this data to a string
 string data_reading(string fileName) {
@@ -41,12 +49,13 @@ void run(string Method_name, function<string(string)> method, const string& Inpu
     auto start = chrono::system_clock::now();
     string result = method(InputData);
     auto stop = chrono::system_clock::now();
-    int final_weight = result.size();
+    double final_weight = result.size();
     auto time = chrono::duration_cast<chrono::microseconds>(stop - start).count();
     cout << "Method name: : " << Method_name << endl;
     cout << "Time:" << time << "mcs" << endl;
-    cout << "compression ratio: " << start_weight*8 / final_weight << endl;
-    //cout << "Result: " << result << endl;
+    cout << "compression ratio: " << start_weight*8 / (final_weight*4) << endl;
+    cout << final_weight << endl;
+    cout << "Result: " << result << "\n\n" << endl;
 }
 
 
@@ -55,17 +64,25 @@ int main() {
     int size;
     cout << "Enter the length of the string: " << endl;
     cin >> size;
-    string generated_data = data_geberation(size);
+    string generated_data = data_generation(size);
     //cout << "Input: " << generated_data << endl;
-    run("Huffman method", huffmanCompress, generated_data);
+    //run("Huffman method", huffmanCompress, generated_data);
     run("Arifmetic code", arivmetic_code, generated_data);
-    run("Lempel-Ziva_Welcha", KORGIN_LZW, generated_data);
+    //run("Lempel-Ziva_Welcha", KORGIN_LZW, generated_data);
     //run("Shennon-fano", return_answer, generated_data);
-    //run("LZW", KORGIN_LZW, generated_data);
+
+    //cout << KORGIN_LZW_Decode(KORGIN_LZW(generated_data)) << endl;;
     /*run("Timurincky method", example_func, generated_data);
     cout << "Enter the name of the data file: " << endl;
     cin >> fileName;
     string file_data = data_reading(fileName);
+    std::istringstream iss(result);  // Создаем поток из строки
+    std::string element;
+    int count = 0;
+    while (iss >> element) {
+        count++;
+    }
+    cout << "compression ratio:---------------------- " << start_weight / count << endl;
     */
     return 0;
 }
