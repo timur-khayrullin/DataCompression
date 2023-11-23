@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <map>
 #include <cstring>
 #include <string>
@@ -11,20 +11,20 @@ using namespace std;
 struct Node {
 	char symbol;
 	double frequency;
-	string code;
+	vector<bool> code;
 	Node* left;
 	Node* right;
 
 	Node(char s, double f) : symbol(s), frequency(f), left(nullptr), right(nullptr) {}
 };
 
-void FreeMemory(Node* root, string& answer) {
+void FreeMemory(Node* root, vector<bool>& answer) {
 	if (root == nullptr) {
 		return;
 	}
 	FreeMemory(root->left, answer);
 	FreeMemory(root->right, answer);
-	answer += root->code;
+	answer.insert(answer.end(), root->code.begin(), root->code.end());
 	delete root;
 }
 
@@ -41,12 +41,27 @@ vector <pair<char, double>> frequency_of_chars(const map<char, int> chars, int l
 	return values;
 }
 
-void Shannon_Fano_recursive(vector <pair<char, double>> vec, int l, int r, Node * root, const string & code) {
+vector<bool> stringToBoolVector(const std::string& str) {
+	std::vector<bool> result;
+	for (char c : str) {
+		if (c == '0') {
+			result.push_back(false);
+		}
+		else if (c == '1') {
+			result.push_back(true);
+		}
+		else {
+			// Handle error - unexpected character in the string
+		}
+	}
+	return result;
+}
+
+void Shannon_Fano_recursive(vector<pair<char, double>>& vec, int l, int r, Node* root, vector<bool>& code) {
 	if (l >= r) {
 		root->symbol = vec[l].first;
 		root->frequency = vec[l].second;
 		root->code = code;
-		cout << "������   " << root->symbol << "   ���   " << root->code << '\n';
 		return;
 	}
 	double sum_left = 0.0;
@@ -59,25 +74,40 @@ void Shannon_Fano_recursive(vector <pair<char, double>> vec, int l, int r, Node 
 		++mid;
 		--r;
 	}
+	vector<pair<char, double>> leftValues(vec.begin(), vec.begin() + mid);
+	vector<pair<char, double>> rightValues(vec.begin() + mid, vec.begin() + r1 + 1);
+
 	root->left = new Node('\0', 0.0);
 	root->right = new Node('\0', 0.0);
 
-	Shannon_Fano_recursive(vec, l, mid - 1, root->left, code + "0");
-	Shannon_Fano_recursive(vec, mid, r1, root->right, code + "1");
-	return;
+	vector<bool> leftCode = code;
+	leftCode.push_back(false);
+	vector<bool> rightCode = code;
+	rightCode.push_back(true);
+
+	Shannon_Fano_recursive(leftValues, 0, leftValues.size() - 1, root->left, leftCode);
+	Shannon_Fano_recursive(rightValues, 0, rightValues.size() - 1, root->right, rightCode);
 }
 
-string return_answer(string& compressor_string)
+
+string return_answer(string compressor_string)
 {
 	map<char, int> chars;
 	for (char i : compressor_string) {
 		i = tolower(i);
 		chars[i]++;
 	}
+	vector<bool> answer;
 	int length = compressor_string.length();
 	vector <pair<char, double>> values = frequency_of_chars(chars, length);
 	Node* root = new Node('\n', 1.0);
-	Shannon_Fano_recursive(values, 0, values.size() - 1, root, "");
-	FreeMemory(root, compressor_string);
-	return compressor_string;
+	vector<bool> initialCode = stringToBoolVector(compressor_string);
+	Shannon_Fano_recursive(values, 0, values.size() - 1, root, initialCode);
+	FreeMemory(root, initialCode); 
+	// Для вывода в строку можно использовать цикл
+	string answerString;
+	for (bool bit : initialCode) {
+		answerString += bit ? '1' : '0';
+	}
+	return answerString;
 }
