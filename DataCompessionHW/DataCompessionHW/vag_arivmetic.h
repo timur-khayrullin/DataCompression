@@ -53,6 +53,6 @@ string arivmetic_code(string unarciv) {
 			break;
 		}
 	}
-	if (ans.find('.') != string::npos) ans.erase(ans.find('.'), 1);
+	if (ans.find(',') != string::npos) ans.erase(ans.find(','), 1);
 	return "0."+ans;
 }
