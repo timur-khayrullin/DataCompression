@@ -45,7 +45,7 @@ string arivmetic_code(string unarciv) {
             low = low * pow(10, 308);
             ans += to_string(low).substr(0,100);
             string lows = to_string(low);
-            lows.erase(lows.find('.'), 7);
+            lows.erase(lows.find(','), 7);
             lows = lows.substr(100);
             low = 0;
             for (int i = 0; i < lows.size(); i++) low += (lows[i] - '0') / pow(10, i + 1);
@@ -54,7 +54,7 @@ string arivmetic_code(string unarciv) {
         low = low + (range * symbolinfo[indexsymbol[symbol]].low);
     }
     ans += to_string(low*pow(10,100));
-    ans.erase(ans.find('.'), 7);
+    ans.erase(ans.find(','), 7);
     high = high * pow(10, 100);
     high = high * pow(10, 100);
     for (int i = ans.size()-100; i < ans.size(); i++) {
