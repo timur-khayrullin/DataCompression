@@ -56,7 +56,6 @@ string arivmetic_code(string unarciv) {
     ans += to_string(low*pow(10,100));
     ans.erase(ans.find(','), 7);
     high = high * pow(10, 100);
-    high = high * pow(10, 100);
     for (int i = ans.size()-100; i < ans.size(); i++) {
         if (ans[i] != to_string(high)[i-ans.size()+100]) {
             int p = ans[i] - '0';
@@ -66,4 +65,55 @@ string arivmetic_code(string unarciv) {
         }
     }
     return "0." + ans;
+}
+
+
+string decompress_arivmetic_code() {
+    cout << "vvedite kolichestvo razlichnih chisel" << endl;
+    int countc;
+    long double counts = 0;
+    cin >> countc;
+    map<char, int> symbol;
+    map<int, char>indexsymbol;
+    cout << "vvedite simvol i skolko raz on vstrechaetsa" << endl;
+    //записываем в словарь вводимые данные
+    for (int i = 0; i < countc; i++) {
+        char a;
+        int coun;
+        cin >> a >> coun;
+        symbol[a] = coun;
+        counts += coun;
+    }
+    cout << "vvedite zachifrovanni kod" << endl;
+    string nach;
+    cin >> nach;
+    long double nachi = stold(nach);
+    for (auto item : symbol) indexsymbol[indexsymbol.size()] = item.first;
+    long double loww = 0;
+    vector<gran_symbol> symbolinfo;
+    //находим границы для каждого символа
+    for (auto symvol : symbol) {
+        gran_symbol gran_symvol;
+        gran_symvol.high = (loww + symvol.second / counts);
+        gran_symvol.low = loww;
+        loww = gran_symvol.high;
+        gran_symvol.value = symvol.second;
+        symbolinfo.push_back(gran_symvol);
+    }
+    string ans = "";
+    vector<gran_symbol> sinfo = symbolinfo;
+    //дешифруем код в строку
+    for (int i = 0; i < counts; i++) {
+        int k = 0;
+        while (!(sinfo[k].low <= nachi && nachi<sinfo[k].high) ) k++;
+        ans += indexsymbol[k];
+        long double loww = sinfo[k].low;
+        long double range = sinfo[k].high - sinfo[k].low;
+        for (int j = 0; j < sinfo.size(); j++) {
+            sinfo[j].high = loww+symbol[indexsymbol[j]]*range/counts;
+            sinfo[j].low = loww;
+            loww = sinfo[j].high;
+        }
+    }
+    return ans;
 }
