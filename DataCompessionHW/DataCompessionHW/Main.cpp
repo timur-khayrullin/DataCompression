@@ -6,7 +6,7 @@
 #include <chrono>
 #include "Huffman.h"
 #include "Korgin_LZW.h"
-#include "vag_arivmetic.h"
+//#include "vag_arivmetic.h"
 #include "Shennon-Fano.h"
 #include <sstream>
 
@@ -28,6 +28,8 @@ struct compress_output {
     float time;
     string result;
     float ratio;
+    string decoded_str;
+
 };
 
 //A function for creating a string containing random elements
@@ -115,19 +117,21 @@ int main() {
     run("Huffman method", huffmanCompress, generated_data,1, data_Huffman);
     get_compress_data(data_Huffman);
     HuffmanNode* huffmanTree = buildHuffmanTree(generated_data);
-    string decompressedData = huffmanDecompress(data_Huffman.result, huffmanTree);
-    cout << "Decompressed data: " << decompressedData << endl;
+    data_Huffman.decoded_str = huffmanDecompress(data_Huffman.result, huffmanTree);
+    cout << "Decompressed data: " << data_Huffman.decoded_str << endl;
     //Lempel-Ziva_welcha
     compress_output data_LZW;
     run("Lempel-Ziva-Welcha", KORGIN_LZW, generated_data,0, data_LZW);
     get_compress_data(data_LZW);
+    data_LZW.decoded_str = KORGIN_LZW_Decode(data_LZW.result);
+    cout << "Decompressed data: " << data_LZW.decoded_str << endl;
     //Shennon-Fano
     compress_output data_Shennon_Fano;
     run("Shennon-fano", return_answer, generated_data,1, data_Shennon_Fano);
     get_compress_data(data_Shennon_Fano);
     //Arifmetic code
-    compress_output data_arifmetic;
-    run("Arifmetic code", arivmetic_code, generated_data, 1, data_arifmetic);
-    get_compress_data(data_arifmetic);
+    //compress_output data_arifmetic;
+    //run("Arifmetic code", arivmetic_code, generated_data, 1, data_arifmetic);
+    //get_compress_data(data_arifmetic);
     return 0;
 }
