@@ -23,6 +23,13 @@ T InputValue(T min, T max) {
     return x;
 }
 
+struct compress_output {
+    string name_method;
+    float time;
+    string result;
+    float ratio;
+};
+
 //A function for creating a string containing random elements
 string data_generation() {
     int size;
@@ -62,33 +69,39 @@ string example_func(string InputData) {
 }
 
 //A function for calculate a ratio for LZW
-void compession_ratio_LZW(double& start, string result) {
+float compession_ratio_LZW(double& start, string result) {
     istringstream iss(result);
     std::string element;
     int count = 0;
     while (iss >> element) {
         count++;
     }
-    cout << "compression ratio:" << start / count << "\n\n" << endl;
+    return  (start / count);
 }
 
 //A function for calculate a ratio for Shennon-Fano and Huffman
-void compression_ratio_binary(double& start, double& final) {
-    cout << "compression ratio: " << start*8 / (final) << "\n\n" << endl;
+float compression_ratio_binary(double& start, double& final) {
+    return (start * 8 / (final));
 }
 
 //A function for running compression algorithms that accepts the source data, name and the algorithm
-void run(string Method_name, function<string(string)> method, const string& InputData, int ratio) {
+void run(string Method_name, function<string(string)> method, const string& InputData, int ratio, compress_output& data) {
     double start_weight = InputData.size();
     auto start = chrono::system_clock::now();
     string result = method(InputData);
     auto stop = chrono::system_clock::now();
     double final_weight = result.size();
-    auto time = chrono::duration_cast<chrono::microseconds>(stop - start).count();
-    cout << "Method name: : " << Method_name << endl;
-    cout << "Time:" << time << "mcs" << endl;
-    ratio == 1 ? compression_ratio_binary(start_weight, final_weight) : compession_ratio_LZW(start_weight,result);
-    //cout << "Result: " << result << "\n\n" << endl;
+    float time = chrono::duration_cast<chrono::microseconds>(stop - start).count();
+    data.name_method = Method_name;
+    data.time = time;
+    data.ratio = (ratio == 1 ? compression_ratio_binary(start_weight, final_weight) : compession_ratio_LZW(start_weight,result));
+    data.result = result;
+}
+void get_compress_data(compress_output& data) {
+    cout << "Method name: " << data.name_method << endl;
+    cout << "Time: " << data.time << "mcs" << endl;
+    cout << "Compression ratio: " << data.ratio << endl;
+    cout << "Result: " << data.result << endl;
 }
 
 
@@ -96,12 +109,25 @@ int main() {
     setlocale(LC_ALL, "RUS");
     cout << "Create a random string or to read from file?" << endl;
     string generated_data = InputValue(1, 2) == 1 ? data_generation() : data_reading();
-    //cout << generated_data << endl;
-    run("Huffman method", huffmanCompress, generated_data,1);
-    //run("Arifmetic code", arivmetic_code, generated_data);
-    run("Lempel-Ziva_Welcha", KORGIN_LZW, generated_data,0);
-    run("Shennon-fano", return_answer, generated_data,1);
-
-    //run("Timurincky method", example_func, generated_data);
+    cout << generated_data << endl;
+    //Huffman method
+    compress_output data_Huffman;
+    run("Huffman method", huffmanCompress, generated_data,1, data_Huffman);
+    get_compress_data(data_Huffman);
+    HuffmanNode* huffmanTree = buildHuffmanTree(generated_data);
+    string decompressedData = huffmanDecompress(data_Huffman.result, huffmanTree);
+    cout << "Decompressed data: " << decompressedData << endl;
+    //Lempel-Ziva_welcha
+    compress_output data_LZW;
+    run("Lempel-Ziva-Welcha", KORGIN_LZW, generated_data,0, data_LZW);
+    get_compress_data(data_LZW);
+    //Shennon-Fano
+    compress_output data_Shennon_Fano;
+    run("Shennon-fano", return_answer, generated_data,1, data_Shennon_Fano);
+    get_compress_data(data_Shennon_Fano);
+    //Arifmetic code
+    compress_output data_arifmetic;
+    run("Arifmetic code", arivmetic_code, generated_data, 1, data_arifmetic);
+    get_compress_data(data_arifmetic);
     return 0;
 }

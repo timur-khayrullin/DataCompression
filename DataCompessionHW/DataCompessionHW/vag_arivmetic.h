@@ -68,30 +68,16 @@ string arivmetic_code(string unarciv) {
 }
 
 
-string decompress_arivmetic_code() {
-    cout << "vvedite kolichestvo razlichnih chisel" << endl;
-    int countc;
+string decompress_arivmetic_code(map<char,int> symbol, string nach ) {
     long double counts = 0;
-    cin >> countc;
     map<char, int> symbol;
+    for (auto sym : symbol) counts += sym.second;
     map<int, char>indexsymbol;
-    cout << "vvedite simvol i skolko raz on vstrechaetsa" << endl;
-    //записываем в словарь вводимые данные
-    for (int i = 0; i < countc; i++) {
-        char a;
-        int coun;
-        cin >> a >> coun;
-        symbol[a] = coun;
-        counts += coun;
-    }
-    cout << "vvedite zachifrovanni kod" << endl;
-    string nach;
-    cin >> nach;
     long double nachi = stold(nach);
     for (auto item : symbol) indexsymbol[indexsymbol.size()] = item.first;
     long double loww = 0;
     vector<gran_symbol> symbolinfo;
-    //находим границы для каждого символа
+    //перебираем словарь для определения пределов
     for (auto symvol : symbol) {
         gran_symbol gran_symvol;
         gran_symvol.high = (loww + symvol.second / counts);
@@ -102,10 +88,12 @@ string decompress_arivmetic_code() {
     }
     string ans = "";
     vector<gran_symbol> sinfo = symbolinfo;
-    //дешифруем код в строку
+    //находим исходную строку
     for (int i = 0; i < counts; i++) {
         int k = 0;
-        while (!(sinfo[k].low <= nachi && nachi<sinfo[k].high) ) k++;
+        while (!(sinfo[k].low <= nachi && nachi<sinfo[k].high) ) {
+            k++;
+        }
         ans += indexsymbol[k];
         long double loww = sinfo[k].low;
         long double range = sinfo[k].high - sinfo[k].low;
