@@ -101,7 +101,7 @@ void get_compress_data(compress_output& data) {
     cout << "Method name: " << data.name_method << endl;
     cout << "Time: " << data.time << "mcs" << endl;
     cout << "Compression ratio: " << data.ratio << endl;
-    cout << "Result: " << data.result << "\n\n" << endl;
+    cout << "Result: " << data.result << endl;
 }
 
 
@@ -110,15 +110,22 @@ int main() {
     cout << "Create a random string or to read from file?" << endl;
     string generated_data = InputValue(1, 2) == 1 ? data_generation() : data_reading();
     cout << generated_data << endl;
+    //Huffman method
     compress_output data_Huffman;
     run("Huffman method", huffmanCompress, generated_data,1, data_Huffman);
     get_compress_data(data_Huffman);
+    HuffmanNode* huffmanTree = buildHuffmanTree(generated_data);
+    string decompressedData = huffmanDecompress(data_Huffman.result, huffmanTree);
+    cout << "Decompressed data: " << decompressedData << endl;
+    //Lempel-Ziva_welcha
     compress_output data_LZW;
-    run("Lempel-Ziva_Welcha", KORGIN_LZW, generated_data,0, data_LZW);
+    run("Lempel-Ziva-Welcha", KORGIN_LZW, generated_data,0, data_LZW);
     get_compress_data(data_LZW);
+    //Shennon-Fano
     compress_output data_Shennon_Fano;
     run("Shennon-fano", return_answer, generated_data,1, data_Shennon_Fano);
     get_compress_data(data_Shennon_Fano);
+    //Arifmetic code
     compress_output data_arifmetic;
     run("Arifmetic code", arivmetic_code, generated_data, 1, data_arifmetic);
     get_compress_data(data_arifmetic);
