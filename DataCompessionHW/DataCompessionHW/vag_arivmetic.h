@@ -70,8 +70,7 @@ string arivmetic_code(string unarciv) {
 
 string decompress_arivmetic_code(map<char,int> symbol, string nach ) {
     long double counts = 0;
-    map<char, int> symbol;
-    for (auto sym : symbol) counts += sym.second;
+    for (auto symvol : symbol) counts += symvol.second;
     map<int, char>indexsymbol;
     long double nachi = stold(nach);
     for (auto item : symbol) indexsymbol[indexsymbol.size()] = item.first;
