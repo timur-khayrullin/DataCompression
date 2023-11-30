@@ -46,33 +46,7 @@ bool CheckValue(unordered_map<char, string> decoder, string binary) {
 	return false;
 }
 
-// Декодируем бинарную строку опять же с помощью словаря
-string DecodeBinary(const unordered_map<char, string>& data, const string answerString) {
-	string decodering, check;
-	for (int r = 0; r < answerString.length(); r++) {
-		check += answerString[r];
-		if (CheckValue(data, check)) {
-			decodering += TakeKey(data, check);
-			check.erase();
-		}
-	}
-	return decodering;
-}
-
-bool sort_by_frequency(const pair<char, double> a, const pair<char, double> b) {
-	return a.second < b.second;
-}
-
-vector <pair<char, double>> frequency_of_chars(const map<char, int> chars, int length) {
-	vector <pair<char, double>> values;
-	for (auto value : chars) {
-		values.push_back(make_pair(value.first, static_cast<double>(value.second) / length));
-	}
-	sort(values.begin(), values.end(), sort_by_frequency);
-	return values;
-}
-
-string boolVectorToString(const vector<bool>& boolVector) {
+string bool_vector_to_string(const vector<bool>& boolVector) {
 	string result;
 	for (bool bit : boolVector) {
 		result += bit ? '1' : '0';
@@ -85,7 +59,7 @@ void Shannon_Fano_recursive(vector<pair<char, double>>& vec, int l, int r, Node*
 		root->symbol = vec[l].first;
 		root->frequency = vec[l].second;
 		root->code = code;
-		string convertation = boolVectorToString(code);
+		string convertation = bool_vector_to_string(code);
 		data.insert({ root->symbol, convertation });
 		return;
 	}
@@ -114,11 +88,23 @@ void Shannon_Fano_recursive(vector<pair<char, double>>& vec, int l, int r, Node*
 	Shannon_Fano_recursive(rightValues, 0, rightValues.size() - 1, root->right, rightCode, data);
 }
 
+bool sort_by_frequency(const pair<char, double> a, const pair<char, double> b) {
+	return a.second < b.second;
+}
 
-string return_answer(string compressor_string)
-{
+vector <pair<char, double>> frequency_of_chars(const map<char, int> chars, int length) {
+	vector <pair<char, double>> values;
+	for (auto value : chars) {
+		values.push_back(make_pair(value.first, static_cast<double>(value.second) / length));
+	}
+	sort(values.begin(), values.end(), sort_by_frequency);
+	return values;
+}
+
+unordered_map<char, string> GetData(string input_string) {
+	unordered_map<char, string> data;
 	map<char, int> chars;
-	for (char i : compressor_string) {
+	for (char i : input_string) {
 		if (chars.find(i) != chars.end()) {
 			chars[i]++;
 		}
@@ -126,20 +112,36 @@ string return_answer(string compressor_string)
 			chars[i] = 1;
 		}
 	}
-	int length = compressor_string.length();
+	int length = input_string.length();
 	vector <pair<char, double>> values = frequency_of_chars(chars, length);
 	Node* root = new Node('\n', 1.0);
-	// создаём словарь, чтобы хранить там символы и бинарные строки к ним
-	unordered_map<char, string> data;
 	vector<bool> initialCode;
 	Shannon_Fano_recursive(values, 0, values.size() - 1, root, initialCode, data);
-	// Используем словарь для воспроизведения результата 
+	FreeMemory(root);
+	return data;
+}
+
+string return_answer(const string input_string)
+{ 
+	unordered_map<char, string> data = GetData(input_string);
 	string answerString;
-	for (char letter : compressor_string) {
+	for (char letter : input_string) {
 		answerString += data[letter];
 	}
-	FreeMemory(root);
-	//Если хотите декодировать
-	//string decodering = DecodeBinary(data, answerString);
 	return answerString;
+}
+
+// Декодируем бинарную строку опять же с помощью словаря
+string DecodeString(const string input_string) {
+	unordered_map<char, string> data = GetData(input_string);
+	string answerString = return_answer(input_string);
+	string decodering, check;
+	for (int r = 0; r < answerString.length(); r++) {
+		check += answerString[r];
+		if (CheckValue(data, check)) {
+			decodering += TakeKey(data, check);
+			check.erase();
+		}
+	}
+	return decodering;
 }
