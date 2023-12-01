@@ -35,5 +35,8 @@
     <ClInclude Include="Shennon-Fano.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="vag_arivmetic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@
 #include <chrono>
 #include "Huffman.h"
 #include "Korgin_LZW.h"
-//#include "vag_arivmetic.h"
+#include "vag_arivmetic.h"
 #include "Shennon-Fano.h"
 #include <sstream>
 
@@ -99,11 +99,11 @@ void run(string Method_name, function<string(string)> method, const string& Inpu
     data.ratio = (ratio == 1 ? compression_ratio_binary(start_weight, final_weight) : compession_ratio_LZW(start_weight,result));
     data.result = result;
 }
-void get_compress_data(compress_output& data) {
+void cout_compress_data(compress_output& data) {
     cout << "Method name: " << data.name_method << endl;
     cout << "Time: " << data.time << "mcs" << endl;
     cout << "Compression ratio: " << data.ratio << endl;
-    cout << "Result: " << data.result << endl;
+    //cout << "Result: " << data.result << endl;
 }
 
 
@@ -111,27 +111,31 @@ int main() {
     setlocale(LC_ALL, "RUS");
     cout << "Create a random string or to read from file?" << endl;
     string generated_data = InputValue(1, 2) == 1 ? data_generation() : data_reading();
-    cout << generated_data << endl;
+    cout << "Input string: " << generated_data << "\n" << endl;
     //Huffman method
     compress_output data_Huffman;
     run("Huffman method", huffmanCompress, generated_data,1, data_Huffman);
-    get_compress_data(data_Huffman);
+    cout_compress_data(data_Huffman);
     HuffmanNode* huffmanTree = buildHuffmanTree(generated_data);
     data_Huffman.decoded_str = huffmanDecompress(data_Huffman.result, huffmanTree);
-    cout << "Decompressed data: " << data_Huffman.decoded_str << endl;
+    cout << "Decompressed Huffman data: " << data_Huffman.decoded_str << "\n\n\n" << endl;
     //Lempel-Ziva_welcha
     compress_output data_LZW;
     run("Lempel-Ziva-Welcha", KORGIN_LZW, generated_data,0, data_LZW);
-    get_compress_data(data_LZW);
+    cout_compress_data(data_LZW);
     data_LZW.decoded_str = KORGIN_LZW_Decode(data_LZW.result);
-    cout << "Decompressed data: " << data_LZW.decoded_str << endl;
+    cout << "Decompressed LZW data: " << data_LZW.decoded_str << "\n\n\n" << endl;
     //Shennon-Fano
     compress_output data_Shennon_Fano;
     run("Shennon-fano", return_answer, generated_data,1, data_Shennon_Fano);
-    get_compress_data(data_Shennon_Fano);
+    cout_compress_data(data_Shennon_Fano);
+    data_Shennon_Fano.decoded_str = DecodeString(generated_data);
+    cout << "Decompressed Shennon-Fano data: " << data_Shennon_Fano.decoded_str << "\n\n" << endl;
     //Arifmetic code
     //compress_output data_arifmetic;
     //run("Arifmetic code", arivmetic_code, generated_data, 1, data_arifmetic);
-    //get_compress_data(data_arifmetic);
+    //cout_compress_data(data_arifmetic);
+    //data_arifmetic.decoded_str = decompress_arivmetic_code(slovar(generated_data), arivmetic_code(generated_data));
+    //cout << "Decompressed arifmetic data: " << data_arifmetic.decoded_str << "\n\n\n" << endl;
     return 0;
 }
